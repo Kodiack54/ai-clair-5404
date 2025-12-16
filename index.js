@@ -49,6 +49,8 @@ const databaseRouter = require('./src/routes/database');
 const structureRouter = require('./src/routes/structure');
 const conventionsRouter = require('./src/routes/conventions');
 const bugsRouter = require('./src/routes/bugs');
+const correctionsRouter = require('./src/routes/corrections');
+const cleanupRouter = require('./src/routes/cleanup');
 
 app.use('/api/todos', todosRouter);
 app.use('/api/journal', knowledgeRouter);
@@ -57,6 +59,8 @@ app.use('/api/database', databaseRouter);
 app.use('/api/structure', structureRouter);
 app.use('/api/conventions', conventionsRouter);
 app.use('/api/bugs', bugsRouter);
+app.use('/api/corrections', correctionsRouter);
+app.use('/api/cleanup', cleanupRouter);
 
 // Error handler
 app.use((err, req, res, next) => {

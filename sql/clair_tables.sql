@@ -138,3 +138,30 @@ END $$;
 -- dev_ai_generated_docs     - Technical documentation (how-tos, schematics)
 -- dev_ai_folder_descriptions - File tree annotations
 -- dev_ai_conventions        - Coding patterns for Claude reference
+
+-- ============================================
+-- 6. DEV_AI_CORRECTIONS - User feedback on AI-generated content
+-- ============================================
+CREATE TABLE IF NOT EXISTS dev_ai_corrections (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    item_type VARCHAR(30) NOT NULL,
+    item_id UUID NOT NULL,
+    correction_type VARCHAR(30) NOT NULL,
+    details JSONB DEFAULT '{}',
+    status VARCHAR(20) DEFAULT 'pending',
+    applied_at TIMESTAMP WITH TIME ZONE,
+    applied_by VARCHAR(100),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    created_by VARCHAR(100) DEFAULT 'user'
+);
+
+ALTER TABLE dev_ai_corrections ADD CONSTRAINT check_correction_item_type
+    CHECK (item_type IN ('knowledge', 'journal', 'doc', 'convention'));
+ALTER TABLE dev_ai_corrections ADD CONSTRAINT check_correction_type
+    CHECK (correction_type IN ('move', 'remove', 'reword', 'note', 'merge'));
+ALTER TABLE dev_ai_corrections ADD CONSTRAINT check_correction_status
+    CHECK (status IN ('pending', 'applied', 'rejected', 'reviewed'));
+
+CREATE INDEX idx_ai_corrections_item ON dev_ai_corrections(item_type, item_id);
+CREATE INDEX idx_ai_corrections_status ON dev_ai_corrections(status);
+CREATE INDEX idx_ai_corrections_created ON dev_ai_corrections(created_at DESC);
