@@ -1,13 +1,13 @@
 /**
  * Clair - AI Documentation Manager
- * Port 5406
+ * Port 5404
  */
 
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 
-const PORT = process.env.PORT || 5406;
+const PORT = process.env.PORT || 5404;
 
 const app = express();
 app.use(cors());
@@ -19,7 +19,7 @@ app.use((req, res, next) => {
 });
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'clair-5406', timestamp: new Date().toISOString() });
+  res.json({ status: 'ok', service: 'clair-5404', timestamp: new Date().toISOString() });
 });
 
 // Routes
@@ -35,6 +35,7 @@ app.use('/api/cleanup', require('./src/routes/cleanup'));
 app.use('/api/scheduler', require('./src/routes/scheduler'));
 app.use('/api/autofill', require('./src/routes/autofill'));
 app.use('/api/projects', require('./src/routes/projects'));
+app.use('/api/routing', require('./src/routes/routing'));
 
 app.use((err, req, res, next) => {
   console.error('[Clair] Error:', err.message);
