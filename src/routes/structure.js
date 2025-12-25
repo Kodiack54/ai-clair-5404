@@ -40,7 +40,7 @@ router.get('/:project', async (req, res) => {
     const { data: descriptions } = await supabase
       .from('dev_ai_folder_descriptions')
       .select('folder_path, description')
-      .eq('project_path', projectPath);
+      .eq('project_id', projectPath);
 
     // Merge descriptions into tree
     const descMap = {};
@@ -79,12 +79,12 @@ router.post('/:project/describe', async (req, res) => {
     const { data, error } = await supabase
       .from('dev_ai_folder_descriptions')
       .upsert({
-        project_path: projectPath,
+        project_id: projectPath,
         folder_path,
         description,
         updated_at: new Date().toISOString()
       }, {
-        onConflict: 'project_path,folder_path'
+        onConflict: 'project_id,folder_path'
       })
       .select()
       .single();
@@ -110,7 +110,7 @@ router.get('/:project/descriptions', async (req, res) => {
     const { data, error } = await supabase
       .from('dev_ai_folder_descriptions')
       .select('*')
-      .eq('project_path', projectPath)
+      .eq('project_id', projectPath)
       .order('folder_path');
 
     if (error) throw error;
@@ -162,7 +162,7 @@ router.post('/:project/export', async (req, res) => {
       const { data } = await supabase
         .from('dev_ai_folder_descriptions')
         .select('folder_path, description')
-        .eq('project_path', projectPath);
+        .eq('project_id', projectPath);
 
       data?.forEach(d => {
         descMap[d.folder_path] = d.description;

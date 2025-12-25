@@ -22,7 +22,7 @@ router.get('/:project', async (req, res) => {
     let query = supabase
       .from('dev_ai_conventions')
       .select('*')
-      .eq('project_path', projectPath)
+      .eq('project_id', projectPath)
       .order('category, pattern');
 
     if (category && CATEGORIES.includes(category)) {
@@ -84,7 +84,7 @@ router.post('/:project', async (req, res) => {
     const { data, error } = await supabase
       .from('dev_ai_conventions')
       .insert({
-        project_path: projectPath,
+        project_id: projectPath,
         category,
         pattern,
         example,
@@ -172,7 +172,7 @@ router.post('/:project/bulk', async (req, res) => {
     }
 
     const toInsert = conventions.map(c => ({
-      project_path: projectPath,
+      project_id: projectPath,
       category: c.category,
       pattern: c.pattern,
       example: c.example,

@@ -269,7 +269,7 @@ async function applyRemove(correction) {
   return { applied: true, message: `Removed ${correction.item_type} item` };
 }
 
-// Helper: Apply move correction (change project_path)
+// Helper: Apply move correction (change project_id)
 async function applyMove(correction) {
   const tableMap = {
     knowledge: 'dev_ai_knowledge',
@@ -286,7 +286,7 @@ async function applyMove(correction) {
 
   const { error } = await supabase
     .from(table)
-    .update({ project_path: targetProject })
+    .update({ project_id: targetProject })
     .eq('id', correction.item_id);
 
   if (error) return { applied: false, message: error.message };

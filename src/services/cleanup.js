@@ -131,7 +131,7 @@ async function flagDuplicateKnowledge() {
     // Get recent knowledge entries
     const { data: knowledge, error } = await supabase
       .from('dev_ai_knowledge')
-      .select('id, title, summary, category, project_path')
+      .select('id, title, summary, category, project_id')
       .order('created_at', { ascending: false })
       .limit(500);
 
@@ -218,7 +218,7 @@ async function condenseSessions() {
     // Find sessions without summaries
     const { data: sessions, error } = await supabase
       .from('dev_ai_sessions')
-      .select('id, project_path, created_at, ended_at')
+      .select('id, project_id, created_at, ended_at')
       .lt('created_at', cutoff.toISOString())
       .is('summary', null)
       .limit(20);

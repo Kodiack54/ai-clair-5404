@@ -17,7 +17,7 @@ router.get('/:project', async (req, res) => {
 
     const { data, error } = await from('dev_ai_bugs')
       .select('*')
-      .eq('project_path', projectPath)
+      .eq('project_id', projectPath)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -47,7 +47,7 @@ router.post('/:project', async (req, res) => {
 
     const { data, error } = await from('dev_ai_bugs')
       .insert({
-        project_path: projectPath,
+        project_id: projectPath,
         title,
         description,
         severity: severity || 'medium',
@@ -169,7 +169,7 @@ router.get('/stats/:project', async (req, res) => {
 
     const { data, error } = await from('dev_ai_bugs')
       .select('status, severity')
-      .eq('project_path', projectPath);
+      .eq('project_id', projectPath);
 
     if (error) throw error;
 

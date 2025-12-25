@@ -76,7 +76,7 @@ async function captureSnippets() {
       await supabase
         .from('dev_ai_snippets')
         .insert({
-          project_path: k.project_path || '/var/www/NextBid_Dev/dev-studio-5000',
+          project_id: k.project_id,
           snippet_type: snippetType,
           content: k.title + (k.summary ? `: ${k.summary}` : ''),
           context: k.content?.slice(0, 500),
@@ -139,7 +139,7 @@ async function captureTodoSnippets() {
       await supabase
         .from('dev_ai_snippets')
         .insert({
-          project_path: todo.project_path || '/var/www/NextBid_Dev/dev-studio-5000',
+          project_id: todo.project_id,
           snippet_type: todo.category === 'bug' ? 'bug_fix' : 'feature',
           content: `COMPLETED: ${todo.title}`,
           context: todo.description,
@@ -194,7 +194,7 @@ async function captureBugSnippets() {
       await supabase
         .from('dev_ai_snippets')
         .insert({
-          project_path: bug.project_path || '/var/www/NextBid_Dev/dev-studio-5000',
+          project_id: bug.project_id,
           snippet_type: 'bug_fix',
           content: `BUG FIXED: ${bug.title}`,
           context: `${bug.description || ''}\nResolution: ${bug.resolution || 'Not documented'}`,
@@ -289,15 +289,15 @@ async function syncTodoStatus() {
   // Get all projects with todos
   const { data: todos, error } = await supabase
     .from('dev_ai_todos')
-    .select('project_path, status, category')
-    .order('project_path');
+    .select('project_id, status, category')
+    .order('project_id');
 
   if (error || !todos) return { synced: 0 };
 
   // Group by project and count
   const projectStats = {};
   for (const todo of todos) {
-    const path = todo.project_path || 'global';
+    const path = todo.project_id || 'global';
     if (!projectStats[path]) {
       projectStats[path] = { pending: 0, in_progress: 0, completed: 0 };
     }

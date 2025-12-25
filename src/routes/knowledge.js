@@ -28,7 +28,7 @@ router.get('/:project', async (req, res) => {
 
     const { data, error } = await from('dev_ai_knowledge')
       .select('*')
-      .eq('project_path', projectPath)
+      .eq('project_id', projectPath)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
@@ -87,7 +87,7 @@ router.post('/:project', async (req, res) => {
 
     const { data, error } = await from('dev_ai_knowledge')
       .insert({
-        project_path: projectPath,
+        project_id: projectPath,
         title,
         content,
         summary: content,
@@ -171,7 +171,7 @@ router.get('/search/:project', async (req, res) => {
 
     const { data, error } = await from('dev_ai_knowledge')
       .select('*')
-      .eq('project_path', projectPath)
+      .eq('project_id', projectPath)
       .or(`title.ilike.%${q}%,content.ilike.%${q}%,summary.ilike.%${q}%`)
       .order('created_at', { ascending: false });
 

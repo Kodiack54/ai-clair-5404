@@ -21,7 +21,7 @@ async function getRecentJournalEntries(projectPath) {
   const { data, error } = await supabase
     .from('dev_ai_journal')
     .select('*')
-    .eq('project_path', projectPath)
+    .eq('project_id', projectPath)
     .gte('created_at', twentyFourHoursAgo)
     .neq('created_by', 'clair-daily-summary')
     .or('is_archived.is.null,is_archived.eq.false')
@@ -36,13 +36,13 @@ async function getActiveProjects() {
   
   const { data, error } = await supabase
     .from('dev_ai_journal')
-    .select('project_path')
+    .select('project_id')
     .gte('created_at', twentyFourHoursAgo)
     .neq('created_by', 'clair-daily-summary')
     .or('is_archived.is.null,is_archived.eq.false');
 
   if (error) return [];
-  return [...new Set(data?.map(e => e.project_path) || [])];
+  return [...new Set(data?.map(e => e.project_id) || [])];
 }
 
 async function archiveEntries(entryIds, summaryId) {
@@ -102,7 +102,7 @@ async function createVersionedDoc(projectPath, category, title, content) {
   const { data, error } = await supabase
     .from('dev_ai_journal')
     .insert({
-      project_path: projectPath,
+      project_id: projectPath,
       entry_type: category,
       title,
       content,

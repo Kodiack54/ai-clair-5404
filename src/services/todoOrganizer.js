@@ -74,7 +74,7 @@ OUTPUT SCHEMA:
  */
 async function getProjectHierarchy(projectPath) {
   // Find project by path
-  const { data: pathData } = await from('dev_project_paths')
+  const { data: pathData } = await from('dev_project_ids')
     .select('project_id, path')
     .eq('path', projectPath)
     .single();
@@ -101,7 +101,7 @@ async function getProjectHierarchy(projectPath) {
   // Get paths for each child
   const childPaths = [];
   for (const child of (children || [])) {
-    const { data: paths } = await from('dev_project_paths')
+    const { data: paths } = await from('dev_project_ids')
       .select('path')
       .eq('project_id', child.id);
 
@@ -124,7 +124,7 @@ async function getProjectHierarchy(projectPath) {
 async function getTodosForProject(projectPath) {
   const { data, error } = await from('dev_ai_todos')
     .select('id, title, description, status, priority, category, created_at')
-    .eq('project_path', projectPath)
+    .eq('project_id', projectPath)
     .order('created_at', { ascending: true });
 
   if (error) {
@@ -208,7 +208,7 @@ Remember: Output ONLY valid JSON matching the schema.`;
 
       if (todoItem) {
         await from('dev_ai_knowledge').insert({
-          project_path: projectPath,
+          project_id: projectPath,
           title: todoItem.title,
           content: `${todoItem.description || todoItem.title}\n\n[Moved from todo - Reason: ${item.reason}]`,
           category: 'Ideas',
@@ -315,7 +315,7 @@ Look for related items across children and combine them. Output ONLY valid JSON.
         .join('\n');
 
       await from('dev_ai_todos').insert({
-        project_path: projectPath,
+        project_id: projectPath,
         title: consolidated.title,
         description: `Consolidated from children:\n${childRefs}`,
         category: consolidated.phase || 'Phase 1',
@@ -398,11 +398,11 @@ async function getFormattedTodos(projectPath) {
  */
 async function organizeAllProjects() {
   const { data: projects, error } = await from('dev_ai_todos')
-    .select('project_path');
+    .select('project_id');
 
   if (error) throw error;
 
-  const uniquePaths = [...new Set(projects.map(p => p.project_path).filter(p => p))];
+  const uniquePaths = [...new Set(projects.map(p => p.project_id).filter(p => p))];
 
   // Separate parents and children
   const parents = [];
@@ -461,7 +461,7 @@ async function markComplete(todoId) {
 async function addTodo(projectPath, title, category = 'General', priority = 'medium') {
   const { data, error } = await from('dev_ai_todos')
     .insert({
-      project_path: projectPath,
+      project_id: projectPath,
       title,
       category,
       priority,

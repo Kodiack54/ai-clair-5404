@@ -2,7 +2,7 @@
  * Project Setup Service
  * 
  * When a new project/worker is created, automatically:
- * 1. Add the project folder to all tabs (project_paths)
+ * 1. Add the project folder to all tabs (project_ids)
  * 2. Scan for auto-fillable info (git, port, etc.)
  * 3. Start recording everything from the beginning
  */
@@ -17,7 +17,7 @@ const { scanProjectFolder } = require('./autoFill');
 async function addProjectPath(projectId, path, label) {
   // Check if already exists
   const { data: existing } = await supabase
-    .from('dev_project_paths')
+    .from('dev_project_ids')
     .select('id')
     .eq('project_id', projectId)
     .eq('path', path)
@@ -30,7 +30,7 @@ async function addProjectPath(projectId, path, label) {
 
   // Get max sort order
   const { data: maxSort } = await supabase
-    .from('dev_project_paths')
+    .from('dev_project_ids')
     .select('sort_order')
     .eq('project_id', projectId)
     .order('sort_order', { ascending: false })
@@ -40,7 +40,7 @@ async function addProjectPath(projectId, path, label) {
   const sort_order = (maxSort?.sort_order || 0) + 1;
 
   const { data, error } = await supabase
-    .from('dev_project_paths')
+    .from('dev_project_ids')
     .insert({
       project_id: projectId,
       path,
@@ -152,7 +152,7 @@ async function setupMissingProjects() {
   for (const project of projects || []) {
     // Check if project has any paths
     const { data: paths } = await supabase
-      .from('dev_project_paths')
+      .from('dev_project_ids')
       .select('id')
       .eq('project_id', project.id)
       .limit(1);

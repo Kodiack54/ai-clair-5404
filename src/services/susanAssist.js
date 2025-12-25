@@ -136,7 +136,7 @@ Title: ${item.title}
 Current Category: ${item.category}
 Current Subcategory: ${item.subcategory || 'none'}
 Summary: ${item.summary || ''}
-Project Path: ${item.project_path || 'global'}
+Project Path: ${item.project_id || 'global'}
 
 Valid categories: architecture, bug-fix, config, workflow, feature, refactor, documentation, api, database, ui, testing, deployment, security, performance
 
@@ -190,7 +190,7 @@ async function updateProjectStructures() {
       const { data: knowledge } = await supabase
         .from('dev_ai_knowledge')
         .select('category')
-        .eq('project_path', project.server_path);
+        .eq('project_id', project.server_path);
       
       if (!knowledge || knowledge.length === 0) continue;
       
@@ -204,10 +204,10 @@ async function updateProjectStructures() {
       await supabase
         .from('dev_ai_structures')
         .upsert({
-          project_path: project.server_path,
+          project_id: project.server_path,
           structure: { knowledge_categories: categoryCounts },
           updated_at: new Date().toISOString()
-        }, { onConflict: 'project_path' });
+        }, { onConflict: 'project_id' });
     }
   } catch (err) {
     console.error('[SusanAssist] Failed to update structures:', err.message);
@@ -222,7 +222,7 @@ async function syncProjectTodos(todos) {
     // Group todos by project
     const byProject = {};
     for (const todo of todos) {
-      const path = todo.project_path || 'global';
+      const path = todo.project_id || 'global';
       if (!byProject[path]) byProject[path] = [];
       byProject[path].push(todo);
     }

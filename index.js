@@ -58,3 +58,10 @@ const server = app.listen(PORT, () => {
 process.on('SIGTERM', () => server.close(() => process.exit(0)));
 process.on('SIGINT', () => server.close(() => process.exit(0)));
 process.on('uncaughtException', (err) => { console.error('[Clair] Error:', err.message); process.exit(1); });
+
+// ============================================
+// REFINER - Process pending items to final status
+// ============================================
+const refiner = require('./src/services/refiner');
+refiner.start(30000); // Run every 30 seconds
+

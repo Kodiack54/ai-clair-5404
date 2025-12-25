@@ -20,7 +20,7 @@ const TABLE_COLUMNS = {
   'dev_ai_docs': { title: 'title', content: 'content' },
   'dev_ai_conventions': { title: 'name', content: 'description' },
   'dev_ai_journal': { title: 'title', content: 'content' },
-  'dev_ai_snippets': { title: 'name', content: 'content' }
+  'dev_ai_snippets': { title: 'name', content: 'content' },
 };
 
 // Product keywords to project name mapping (case-insensitive)
@@ -104,7 +104,7 @@ async function routeTable(tableName, options = {}) {
 
   try {
     // Build select string based on table columns
-    const selectCols = `id, ${columns.title}, ${columns.content}, project_path, project_id, client_id`;
+    const selectCols = `id, ${columns.title}, ${columns.content}, project_id, client_id`;
 
     const { data: items, error } = await from(tableName)
       .select(selectCols)
@@ -200,7 +200,7 @@ async function routeByPath(projectPath, options = {}) {
 
       const { data: items } = await from(table)
         .select(selectCols)
-        .ilike('project_path', `%${projectPath}%`)
+        .ilike('bucket', `%${projectPath}%`)
         .limit(limit);
 
       for (const item of (items || [])) {

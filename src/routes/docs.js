@@ -21,8 +21,8 @@ router.get('/:project', async (req, res) => {
 
     let query = supabase
       .from('dev_ai_generated_docs')
-      .select('id, project_path, doc_type, title, generated_at, is_published')
-      .eq('project_path', projectPath)
+      .select('id, project_id, doc_type, title, generated_at, is_published')
+      .eq('project_id', projectPath)
       .order('generated_at', { ascending: false });
 
     if (type && DOC_TYPES.includes(type)) {
@@ -100,7 +100,7 @@ router.post('/:project/generate', async (req, res) => {
     const { data, error } = await supabase
       .from('dev_ai_generated_docs')
       .insert({
-        project_path: projectPath,
+        project_id: projectPath,
         doc_type,
         title: title || `${doc_type} - ${new Date().toISOString()}`,
         content,
@@ -132,7 +132,7 @@ router.get('/:project/howto', async (req, res) => {
     const { data, error } = await supabase
       .from('dev_ai_generated_docs')
       .select('*')
-      .eq('project_path', projectPath)
+      .eq('project_id', projectPath)
       .in('doc_type', ['howto', 'guide'])
       .eq('is_published', true)
       .order('title');

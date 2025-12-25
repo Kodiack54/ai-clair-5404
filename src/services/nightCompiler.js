@@ -34,22 +34,17 @@ async function getAllProjects() {
     .select('*')
     .eq('is_active', true);
 
-  if (error || !data || data.length === 0) {
-    return [{
-      slug: 'dev-studio-5000',
-      server_path: '/var/www/NextBid_Dev/dev-studio-5000'
-    }];
-  }
+if (error || !data || data.length === 0) {    console.log("[NightCompiler] No active projects found");    return [];  }
   return data;
 }
 
-async function processTodosTab(projectPath) {
+async function processTodosTab(projectId) {
   const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
   const { data: todos } = await supabase
     .from('dev_ai_todos')
     .select('*')
-    .ilike('project_path', `%${projectPath}%`)
+    .eq("project_id", projectId)
     .gte('updated_at', yesterday);
 
   if (!todos || todos.length === 0) {
@@ -69,13 +64,13 @@ async function processTodosTab(projectPath) {
   };
 }
 
-async function processKnowledgeTab(projectPath) {
+async function processKnowledgeTab(projectId) {
   const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
   const { data: knowledge } = await supabase
     .from('dev_ai_knowledge')
     .select('*')
-    .ilike('project_path', `%${projectPath}%`)
+    .eq("project_id", projectId)
     .gte('created_at', yesterday);
 
   if (!knowledge || knowledge.length === 0) {
@@ -92,13 +87,13 @@ async function processKnowledgeTab(projectPath) {
   return { updated: true, count: knowledge.length, byCategory };
 }
 
-async function processBugsTab(projectPath) {
+async function processBugsTab(projectId) {
   const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
   const { data: bugs } = await supabase
     .from('dev_ai_bugs')
     .select('*')
-    .ilike('project_path', `%${projectPath}%`)
+    .eq("project_id", projectId)
     .gte('updated_at', yesterday);
 
   if (!bugs || bugs.length === 0) {
@@ -112,11 +107,11 @@ async function processBugsTab(projectPath) {
   };
 }
 
-async function processIdeasTab(projectPath, projectName) {
+async function processIdeasTab(projectId, projectName) {
   const { data: ideas } = await supabase
     .from('dev_ai_ideas')
     .select('*')
-    .ilike('project_path', `%${projectPath}%`)
+    .eq("project_id", projectId)
     .eq('status', 'proposed')
     .is('integration_with_existing', null);
 
@@ -160,11 +155,11 @@ Be practical and accurate. No fluff.`;
   return { updated: processed.length > 0, processed };
 }
 
-async function processDecisionsTab(projectPath) {
+async function processDecisionsTab(projectId) {
   const { data: decisions } = await supabase
     .from('dev_ai_decisions')
     .select('*')
-    .ilike('project_path', `%${projectPath}%`)
+    .eq("project_id", projectId)
     .eq('status', 'pending');
 
   if (!decisions || decisions.length === 0) {
@@ -181,13 +176,13 @@ async function processDecisionsTab(projectPath) {
   };
 }
 
-async function processLessonsTab(projectPath) {
+async function processLessonsTab(projectId) {
   const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
   const { data: lessons } = await supabase
     .from('dev_ai_lessons')
     .select('*')
-    .ilike('project_path', `%${projectPath}%`)
+    .eq("project_id", projectId)
     .gte('created_at', yesterday);
 
   if (!lessons || lessons.length === 0) {
@@ -203,19 +198,19 @@ async function processLessonsTab(projectPath) {
   };
 }
 
-async function processDocsTab(projectPath) {
+async function processDocsTab(projectId) {
   const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
   const { data: structures } = await supabase
     .from('dev_ai_structures')
     .select('updated_at')
-    .ilike('project_path', `%${projectPath}%`)
+    .eq("project_id", projectId)
     .gte('updated_at', yesterday);
 
   const { data: conventions } = await supabase
     .from('dev_ai_conventions')
     .select('*')
-    .ilike('project_path', `%${projectPath}%`)
+    .eq("project_id", projectId)
     .gte('created_at', yesterday);
 
   const needsUpdate = (structures?.length > 0) || (conventions?.length > 0);
@@ -227,13 +222,13 @@ async function processDocsTab(projectPath) {
   };
 }
 
-async function processTimelineTab(projectPath) {
+async function processTimelineTab(projectId) {
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
   const { data: completed } = await supabase
     .from('dev_ai_todos')
     .select('*')
-    .ilike('project_path', `%${projectPath}%`)
+    .eq("project_id", projectId)
     .eq('status', 'completed')
     .gte('completed_at', sevenDaysAgo)
     .in('category', ['feature', 'phase', 'release']);
@@ -247,14 +242,14 @@ async function processTimelineTab(projectPath) {
     const { data: existing } = await supabase
       .from('dev_ai_timeline')
       .select('id')
-      .ilike('project_path', `%${projectPath}%`)
+      .eq("project_id", projectId)
       .eq('title', todo.title);
 
     if (!existing || existing.length === 0) {
       await supabase
         .from('dev_ai_timeline')
         .insert({
-          project_path: projectPath,
+          project_id: projectId,
           milestone_type: todo.category || 'feature',
           title: todo.title,
           achievement: `Completed: ${todo.title}`,
@@ -267,7 +262,7 @@ async function processTimelineTab(projectPath) {
   return { updated: added.length > 0, added };
 }
 
-async function createJournalEntry(projectPath, projectName, tabResults) {
+async function createJournalEntry(projectId, projectName, tabResults) {
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
   });
@@ -312,7 +307,7 @@ ONLY include sections that have actual data. Be accurate, no fluff.`;
     const { data: journal } = await supabase
       .from('dev_ai_journal')
       .insert({
-        project_path: projectPath,
+        project_id: projectId,
         entry_type: 'work_log',
         title: `Daily Summary: ${today}`,
         content: response.content,
@@ -345,20 +340,20 @@ async function runNightCompilation() {
     console.log(`[NightCompiler] Processing ${projects.length} projects...`);
 
     for (const project of projects) {
-      const projectPath = project.server_path || project.slug;
-      const projectName = project.slug || projectPath.split('/').pop();
+      const projectId = project.id;
+      const projectName = project.slug || projectId.split('/').pop();
 
       console.log(`\n[NightCompiler] ─── ${projectName} ───`);
 
       const tabResults = {
-        todos: await processTodosTab(projectPath),
-        knowledge: await processKnowledgeTab(projectPath),
-        bugs: await processBugsTab(projectPath),
-        ideas: await processIdeasTab(projectPath, projectName),
-        decisions: await processDecisionsTab(projectPath),
-        lessons: await processLessonsTab(projectPath),
-        docs: await processDocsTab(projectPath),
-        timeline: await processTimelineTab(projectPath)
+        todos: await processTodosTab(projectId),
+        knowledge: await processKnowledgeTab(projectId),
+        bugs: await processBugsTab(projectId),
+        ideas: await processIdeasTab(projectId, projectName),
+        decisions: await processDecisionsTab(projectId),
+        lessons: await processLessonsTab(projectId),
+        docs: await processDocsTab(projectId),
+        timeline: await processTimelineTab(projectId)
       };
 
       for (const [tab, result] of Object.entries(tabResults)) {
@@ -367,7 +362,7 @@ async function runNightCompilation() {
         }
       }
 
-      const journal = await createJournalEntry(projectPath, projectName, tabResults);
+      const journal = await createJournalEntry(projectId, projectName, tabResults);
 
       results.projects.push({
         name: projectName,

@@ -59,7 +59,7 @@ router.post('/table', async (req, res) => {
 
 /**
  * POST /api/routing/by-path
- * Route all items from a specific project_path to correct projects
+ * Route all items from a specific project_id to correct projects
  * Useful for batch-fixing items from kodiack-studio sessions
  */
 router.post('/by-path', async (req, res) => {
