@@ -15,13 +15,13 @@ const logger = new Logger('Clair:Pipeline');
 const FINAL_STATUS = {
   'dev_ai_todos': 'open',
   'dev_ai_bugs': 'open',
-  'dev_ai_knowledge': 'cataloged',
+  'dev_ai_knowledge': 'published',
   'dev_ai_docs': 'draft',
   'dev_ai_conventions': 'active',
-  'dev_ai_snippets': 'cataloged',
+  'dev_ai_snippets': 'published',
   'dev_ai_decisions': 'decided',
-  'dev_ai_lessons': 'cataloged',
-  'dev_ai_journal': 'cataloged'
+  'dev_ai_lessons': 'published',
+  'dev_ai_journal': 'published'
 };
 
 // All destination tables that need processing
